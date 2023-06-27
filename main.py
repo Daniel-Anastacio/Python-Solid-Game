@@ -51,23 +51,21 @@
 #   print('Sua vidas chegaram a zero você perdeu')
 
 
-from game import apresentações, Usuario,Tema, Game, criar_temas, sortear_tema, mensagens, tratamento_str
+from game import apresentações, Usuario,Tema, Game, criar_temas, sortear_tema, mensagens, tratamento_str, rotas
 
 
-def main():
-    apresentações()
-    player = Usuario()
-    player.registrar()
-    player.resultados()
-    criar_temas()
-    sortear_tema(Game.temas)
-    mensagens("novo_jogo")
-    Game.tema_sorteado.sortear_palavra()
-    # print(Game.tema_sorteado, eval(Game.tema_sorteado))
-
-
+apresentações()
+player = Usuario()
+player.registrar()
+player.resultados()
+criar_temas()
+sortear_tema(Game.temas)
+mensagens("novo_jogo")
+Game.tema_sorteado.sortear_palavra()
 def loop():
+    while True:
+        mensagens("game!")
+        rotas(Game.tema_sorteado, player)
     pass
 
-
-main()
+loop()

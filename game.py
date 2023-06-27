@@ -42,10 +42,10 @@ Temas = ["Profissões", "Animais", "Lugares", "Nomes de Pessoa"]
 
 class Usuario:
     def __init__(self):
-        self.nome = self.pergunta("Digite seu nome")
+        self.nome = pergunta("Digite seu nome\n")
         self.vidas = 5
         self.pontos = 0
-        self.letra = None
+        self.letra: str
 
     def registrar(self):
         Game.placar.append({self.nome: self.pontos})
@@ -54,12 +54,18 @@ class Usuario:
     def resultados(self):
         print(f"{self.nome}, você tem {self.vidas} vidas e {self.pontos} pontos ")
 
-    def pergunta(self, pergunta):
+    def pergunta(self, frase: str):
         try:
-            return str(input(pergunta))
+            return str(input(frase))
         except:
             print("Digite algum caractere válido!!")
-            self.pergunta(pergunta)
+            self.pergunta(frase)
+
+    def pontuacao(self, pontos: int):
+        self.pontos = self.pontos + pontos
+
+    def punicao(self):
+        self.vidas = self.vidas - 1
 
 
 def apresentações():
@@ -78,26 +84,33 @@ class Tema:
     # tema_sorteado: str = ""
 
     def __init__(self, nome: str, palavras: list):
-        self.misterio = None
-        self.exibido = None
+        self.misterio: str = ""
+        self.exibido: str = ""
         self.nome = nome
         self.palavras = palavras
         # Game.temas.append(self.nome)
         # print(Game.temas)
 
     def sortear_palavra(self):
-        self.misterio: str = self.palavras[random.randint(0, len(self.palavras))]
+        self.misterio: str = self.palavras[random.randint(0, len(self.palavras) - 1)]
         self.exibido: str = "-" * len(self.misterio)
 
     def __str__(self):
         return self.nome
+def pergunta(frase: str):
+    try:
+        return str(input(frase))
+    except:
+        print("Digite algum caractere válido!!")
+        pergunta(frase)
 
 
-def sortear_tema(temas: list[str]):
+def sortear_tema(temas: list[str]):  # USADA
     Game.tema_sorteado = temas[random.randint(0, len(temas) - 1)]
     # print(Game.tema_sorteado)
 
-def criar_temas():
+
+def criar_temas():  # Usada
     tema1 = Tema("Animais", ["BURRO", "PORCO", "IGUANA", "SIRI", "HIRAX"])
     tema2 = Tema("Profissões", ["MECANICO", "PINTOR", "CANTOR", "SURFISTA"])
     tema3 = Tema("Paises", ["EGITO", "PERU", "TURQUIA", "ANGOLA", "BRASIL"])
@@ -109,7 +122,7 @@ def criar_temas():
 
 
 def tratamento_str(palavra: str):  # tratar a letra
-    return palavra[0].upper
+    return palavra[0].upper()
 
 
 def check(obj: any, scope: any):  # checar vidas e se a letra está na palvra
@@ -128,8 +141,35 @@ def editar_palavra(palavra: str, letra: str):  ##edita a palavra
     return palavra.replace("-", letra)
 
 
-def mensagens(casos: any):
-    match (casos):
+##Rotas
+
+def rotas(obj, user):
+    obj.letra = tratamento_str(pergunta("Digite um letra:\n"))
+    # print(type(Game.tema_sorteado.misterio))
+    # print(Game.tema_sorteado.misterio, obj.letra)
+    # if "A" in "ANGOLA":
+    #     print('é pode ser')
+    # else:
+    #     print("fudeo")
+    if check(obj.letra, Game.tema_sorteado.misterio):
+        Game.tema_sorteado.exibido = editar_palavra(Game.tema_sorteado.exibido, obj.letra)
+        user.pontuacao(Game.tema_sorteado.misterio.count(obj.letra))
+        mensagens("acerto")
+    else:
+        user.punicao()
+        mensagens("erro")
+
+
+def mensagens(casos: str):
+    match casos:
         case "novo_jogo":
-            print(f"Muito bem vamos começar! O tema sorteado é {str(Game.tema_sorteado)}\n")
+            print(f"Muito bem vamos começar! O tema sorteado é {str(Game.tema_sorteado)}")
+        case "game!":
+            print(
+                f"\n{Game.tema_sorteado.exibido}\n{str(Game.tema_sorteado)} - {len(Game.tema_sorteado.exibido)} letras")
+        case "acerto":
+            print(
+                f"Acertaste!\n Existem {Game.tema_sorteado.misterio.count(Game.tema_sorteado.letra)} destas na palavra")
+        case "erro":
+            print(f"Erraste!\n Anima-te haverão outras oportunidades")
     pass
