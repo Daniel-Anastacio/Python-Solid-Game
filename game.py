@@ -1,55 +1,11 @@
 import random
-
-# ps = ["CAVALO", "CACHORRO", "HIENA", "FAISAO", 'ARARA', 'HIPOPÓTAMO', 'HIRAX', 'TARTIGRADO']
-# ps = ps[random.randint(0, (len(ps) - 1))]
-# vidas = 3
-# pontuação = 0
-# listchec = []
-# listchec2 = []
-#
-# while vidas > 0 and pontuação < len(ps):
-#     print('JOGO DA FORCA\nTEMA: ANIMAIS')
-#     print(f'A palavra tem {len(ps)} letras')
-#     letra = input('digite uma letra:\n')
-#     letra = letra.upper()
-#     if ps.count(letra) == 0:
-#         vidas = vidas - 1
-#         listchec2.append(letra)
-#         print(
-#             f"Esta letra não está na palavra secreta\nNúmero de vidas: {vidas}\nPontuação necessária para vencer: {len(ps)}\nPontuação atual: {pontuação}\nLetras Erradas: {str(listchec2)}\n")
-#     else:
-#         pontuação = pontuação + ps.count(letra)
-#         print(
-#             f'Essa letra aparece {ps.count(letra)} vez(es)\nnúmero de vidas: {vidas}\npontuação necessária para vencer: {len(ps)}\npontuação atual: {pontuação}\nLetras Erradas: {listchec2}\n')
-#         for x in range(0, (len(ps))):
-#             if letra == ps[x]:
-#                 print(ps[x])
-#                 listchec.append(ps[x])
-#             elif letra != ps[x] and ps[x] in listchec:
-#                 print(ps[x])
-#             else:
-#                 print('----')
-# if pontuação == len(ps):
-#     print(f"Parabéns você venceu a palavra correta é {ps}")
-# elif vidas == 0:
-#     print('Sua vidas chegaram a zero você perdeu')
-
-######
-
-
-Temas = ["Profissões", "Animais", "Lugares", "Nomes de Pessoa"]
-
-
+from time import sleep
 class Usuario:
     def __init__(self):
         self.nome = pergunta("Digite seu nome\n")
         self.vidas = 5
         self.pontos = 0
         self.letra: str
-
-    def registrar(self):
-        Game.placar.append({self.nome: self.pontos})
-        print(Game.placar)
 
     def resultados(self):
         print(f"{self.nome}, você tem {self.vidas} vidas e {self.pontos} pontos ")
@@ -68,9 +24,6 @@ class Usuario:
         self.vidas = self.vidas - 1
 
 
-def apresentações():
-    print(f"Bem Vindo ao jogo da forca\nRegras\nEstes são os recordes:\n{Game.placar}")
-
 
 class Game:
     placar: list = []
@@ -79,17 +32,12 @@ class Game:
 
 
 class Tema:
-    # placar: list = []
-    # temas: list[str] = ["abluble"]
-    # tema_sorteado: str = ""
 
     def __init__(self, nome: str, palavras: list):
         self.misterio: str = ""
         self.exibido: str = ""
         self.nome = nome
         self.palavras = palavras
-        # Game.temas.append(self.nome)
-        # print(Game.temas)
 
     def sortear_palavra(self):
         self.misterio: str = self.palavras[random.randint(0, len(self.palavras) - 1)]
@@ -97,6 +45,8 @@ class Tema:
 
     def __str__(self):
         return self.nome
+
+
 def pergunta(frase: str):
     try:
         return str(input(frase))
@@ -107,7 +57,6 @@ def pergunta(frase: str):
 
 def sortear_tema(temas: list[str]):  # USADA
     Game.tema_sorteado = temas[random.randint(0, len(temas) - 1)]
-    # print(Game.tema_sorteado)
 
 
 def criar_temas():  # Usada
@@ -122,10 +71,13 @@ def criar_temas():  # Usada
 
 
 def tratamento_str(palavra: str):  # tratar a letra
-    return palavra[0].upper()
+    try:
+        return palavra[0].upper()
+    except:
+        print("Valor inválido")
 
 
-def check(obj: any, scope: any):  # checar vidas e se a letra está na palvra
+def check(obj: any, scope: any) -> bool:  # checar vidas e se a letra está na palvra
     if obj in scope:
         return True
     else:
@@ -137,23 +89,30 @@ def check(obj: any, scope: any):  # checar vidas e se a letra está na palvra
 ##Em caso de acerto é necessário que conta-se o número de letras na palavra e traduza em pontos, além de uma exibição
 # letras perdidas não contam pontos
 
-def editar_palavra(palavra: str, letra: str):  ##edita a palavra
-    return palavra.replace("-", letra)
+def exibicao(obj: str, letra: str, index: int) -> str:
+    obj = list(obj)
+    obj[index] = letra
+    obj = "".join(obj)
+    return obj
 
 
-##Rotas
+def editar_palavra(palavra: str, exibido: str, letra: str) -> str:  ##edita a palavra
+    for i in range(0, len(palavra)):
+        if check(letra, palavra[i]):
+            exibido = exibicao(exibido, letra, i)
+        else:
+            continue
+    return exibido
 
-def rotas(obj, user):
+
+##Rotas Acerta ou Erra a Letra
+
+def rotas(obj, user) -> None:
     obj.letra = tratamento_str(pergunta("Digite um letra:\n"))
-    # print(type(Game.tema_sorteado.misterio))
-    # print(Game.tema_sorteado.misterio, obj.letra)
-    # if "A" in "ANGOLA":
-    #     print('é pode ser')
-    # else:
-    #     print("fudeo")
-    if check(obj.letra, Game.tema_sorteado.misterio):
-        Game.tema_sorteado.exibido = editar_palavra(Game.tema_sorteado.exibido, obj.letra)
+    if check(obj.letra, Game.tema_sorteado.misterio) and not check(obj.letra, Game.tema_sorteado.exibido):
+        Game.tema_sorteado.exibido = editar_palavra(Game.tema_sorteado.misterio, Game.tema_sorteado.exibido, obj.letra)
         user.pontuacao(Game.tema_sorteado.misterio.count(obj.letra))
+        print(Game.tema_sorteado.exibido)
         mensagens("acerto")
     else:
         user.punicao()
@@ -161,15 +120,32 @@ def rotas(obj, user):
 
 
 def mensagens(casos: str):
+    sleep(0.25)
     match casos:
+        case "apresentações":
+            print(f"Bem Vindo ao jogo da forca\nRegras\n")
         case "novo_jogo":
+            sleep(0.5)
             print(f"Muito bem vamos começar! O tema sorteado é {str(Game.tema_sorteado)}")
         case "game!":
-            print(
-                f"\n{Game.tema_sorteado.exibido}\n{str(Game.tema_sorteado)} - {len(Game.tema_sorteado.exibido)} letras")
+            print(f"\n{Game.tema_sorteado.exibido}\n{str(Game.tema_sorteado)} - {len(Game.tema_sorteado.exibido)} letras")
         case "acerto":
-            print(
-                f"Acertaste!\n Existem {Game.tema_sorteado.misterio.count(Game.tema_sorteado.letra)} destas na palavra")
+            print("#"*30, f"\nAcertaste!\nExistem {Game.tema_sorteado.misterio.count(Game.tema_sorteado.letra)} letra(s) desta(s) na palavra\n", "#"*30)
         case "erro":
-            print(f"Erraste!\n Anima-te haverão outras oportunidades")
+            print("#"*30, f"\nErraste!\nAnima-te haverão outras oportunidades\n", "#"*30)
+        case "derrota":
+            print(f"Perdeste!\nBom Jogo! Até uma próxima")
+        case "regame":
+            sleep(0.5)
+            print(f"Então vamos para mais uma rodada")
+        case "vitória":
+            print(f"Parabéns Você venceu!\nA palavra é {Game.tema_sorteado.misterio}")
+        case "fim":
+            print(f"Obrigado por jogar!")
+
     pass
+
+
+# Condições de Saída ou término
+# -Vidas Acabando
+# -Jogos Terminando
